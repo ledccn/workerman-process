@@ -1,0 +1,21 @@
+{
+    "name": "ledc/workerman-process",
+    "description": "workerman进程启动器",
+    "type": "library",
+    "license": "MIT",
+    "autoload": {
+        "psr-4": {
+            "Ledc\\WorkermanProcess\\": "src/"
+        }
+    },
+    "authors": [
+        {
+            "name": "david",
+            "email": "367013672@qq.com"
+        }
+    ],
+    "require": {
+        "php": "^7.2|^8.0",
+        "workerman/workerman": "^4.0"
+    }
+}
