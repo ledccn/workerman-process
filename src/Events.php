@@ -78,7 +78,7 @@ class Events
                 unset($session[self::AUTH_TIMER_ID]);
                 Gateway::updateSession($client_id, $session);
             }
-        }, array($client_id), false);
+        }, [$client_id], false);
 
         /**
          * 保存定时器timerId和连接的auth到用户Session中
@@ -103,10 +103,16 @@ class Events
             'auth' => $auth
         ];
         Gateway::sendToCurrentClient(json_encode($data, JSON_UNESCAPED_UNICODE));
+        static::onConnectNotify();
+    }
 
-        /**
-         * 向所有在线的客户端推送 -> 在线连接总数
-         */
+    /**
+     * 向所有在线的客户端推送 -> 在线连接总数
+     * @return void
+     * @throws Exception
+     */
+    protected static function onConnectNotify(): void
+    {
         $rs = [
             'event' => 'onConnect',
             'online' => Gateway::getAllClientIdCount()
@@ -143,12 +149,14 @@ class Events
         }
 
         $data = json_decode($message, true);
-        if (empty($data) || empty($data['event']) || is_numeric($data['event']) || !is_string($data['event'])) {
+        if (empty($data)) {
             return;
         }
-        $event = $data['event'];
 
-        switch ($event) {
+        switch ($data['event'] ?? '') {
+            case 'ping':
+                Gateway::sendToCurrentClient('{"event":"pong"}');
+                break;
             case 'keepalive':
                 if (!empty($_SESSION[self::AUTH_TIMER_ID])) {
                     Timer::del($_SESSION[self::AUTH_TIMER_ID]);
@@ -157,8 +165,20 @@ class Events
                 }
                 break;
             default:
+                static::onMessageHandler($client_id, $data, $message);
                 break;
         }
+    }
+
+    /**
+     * @param string $client_id
+     * @param mixed $data
+     * @param mixed $original_message 完整的客户端请求数据，数据类型取决于Gateway所使用协议的decode方法返的回值类型
+     * @return void
+     */
+    protected static function onMessageHandler(string $client_id, $data, $original_message): void
+    {
+        //todo...
     }
 
     /**
