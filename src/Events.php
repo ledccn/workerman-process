@@ -209,4 +209,49 @@ class Events
     public static function onWorkerStop(BusinessWorker $businessWorker)
     {
     }
+
+    /**
+     * 将client_id与uid绑定
+     * @param string $client_id
+     * @param string $uid
+     * @param string $auth
+     * @return void
+     * @throws Exception
+     */
+    public static function bindUid(string $client_id, string $uid, string $auth): bool
+    {
+        if (empty($auth) || strlen($auth) < 32) {
+            throw new Exception('auth验证参数为空');
+        }
+
+        $session = Gateway::getSession($client_id);
+        $_auth = $session['auth'] ?? $session['uniqid'] ?? '';
+        if (empty($_auth)) {
+            throw new Exception('session验证参数为空');
+        }
+
+        if (hash_equals($auth, $_auth)) {
+            Gateway::bindUid($client_id, $uid);
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
+     * 将client_id加入组
+     * @param string $client_id
+     * @param array|<int>[]|<string>[] $groups
+     * @return void
+     */
+    public static function joinGroup(string $client_id, array $groups): void
+    {
+        if (empty($client_id) || empty($group)) {
+            return;
+        }
+
+        foreach ($groups as $group) {
+            Gateway::joinGroup($client_id, $group);
+        }
+    }
 }
