@@ -18,6 +18,11 @@ $registerAddress = getenv('GATEWAY_REGISTER_ADDRESS') ?: '127.0.0.1';
 $registerPort = getenv('GATEWAY_REGISTER_PORT') ?: '1236';
 //本机IP
 $lanIp = getenv('SOCKET_BIND_TO_IP') ?: '127.0.0.1';
+//重置必要的参数
+if (class_exists(\GatewayWorker\Lib\Gateway::class)) {
+    \GatewayWorker\Lib\Gateway::$registerAddress = $registerAddress . ':' . $registerPort;
+    \GatewayWorker\Lib\Gateway::$secretKey = $gatewaySecret;
+}
 
 return [
     /**
