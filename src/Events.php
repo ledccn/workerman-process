@@ -241,7 +241,7 @@ class Events
     /**
      * 将client_id加入组
      * @param string $client_id
-     * @param array|<int>[]|<string>[] $groups
+     * @param array|array<int>|array<string> $groups
      * @return void
      */
     public static function joinGroup(string $client_id, array $groups): void
