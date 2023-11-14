@@ -56,7 +56,6 @@ class Events
 
     /**
      * 当客户端连接上gateway进程时(TCP三次握手完毕时)触发的回调函数
-     *
      * @param string $client_id 全局唯一的客户端socket连接标识
      * @throws Exception
      */
@@ -64,19 +63,15 @@ class Events
     {
         /**
          * 定时关闭这个链接
-         * 阻止关闭连接的方法： 方法一.间隔时间内绑定用户uid； 方法二.间隔时间内主动发认证并删除此定时器
+         * 阻止关闭连接的方法： 方法一.间隔时间内绑定用户uid； 方法二.间隔时间内主动删除此定时器
          */
         $auth_timer_id = Timer::add(static::CLOSE_CLIENT_INTERVAL, function ($client_id) {
             // 返回client_id绑定的uid，如果client_id没有绑定uid，则返回null
             $uid = Gateway::getUidByClientId($client_id);
             if (empty($uid)) {
-                // 关闭未绑定uid的连接
-                Gateway::closeClient($client_id);
+                static::onConnectTimeoutNotUid($client_id);
             } else {
-                // 已绑定，更新session
-                $session = Gateway::getSession($client_id);
-                unset($session[self::AUTH_TIMER_ID]);
-                Gateway::updateSession($client_id, $session);
+                static::onConnectExistUid($client_id);
             }
         }, [$client_id], false);
 
@@ -103,15 +98,40 @@ class Events
             'auth' => $auth
         ];
         Gateway::sendToCurrentClient(json_encode($data, JSON_UNESCAPED_UNICODE));
-        static::onConnectNotify();
+        static::onConnectNotify($client_id);
+    }
+
+    /**
+     * 超时未绑定
+     * @param string $client_id
+     * @return void
+     */
+    protected static function onConnectTimeoutNotUid(string $client_id): void
+    {
+        // 关闭未绑定uid的连接
+        Gateway::closeClient($client_id);
+    }
+
+    /**
+     * 定时器检测到当前链接已绑定UID
+     * @param string $client_id
+     * @return void
+     */
+    protected static function onConnectExistUid(string $client_id): void
+    {
+        // 已绑定，更新session
+        $session = Gateway::getSession($client_id);
+        unset($session[self::AUTH_TIMER_ID]);
+        Gateway::updateSession($client_id, $session);
     }
 
     /**
      * 向所有在线的客户端推送 -> 在线连接总数
+     * @param string $client_id
      * @return void
      * @throws Exception
      */
-    protected static function onConnectNotify(): void
+    protected static function onConnectNotify(string $client_id): void
     {
         $rs = [
             'event' => 'onConnect',
@@ -137,7 +157,7 @@ class Events
      * 当客户端发来数据(Gateway进程收到数据)后触发的回调函数
      * - https://www.workerman.net/doc/gateway-worker/on-messsge.html
      * @param int|string $client_id 全局唯一的客户端socket连接标识
-     * @param mixed $message 完整的客户端请求数据，数据类型取决于Gateway所使用协议的decode方法返的回值类型
+     * @param mixed $message 完整的客户端请求数据，数据类型取决于Gateway所使用协议的decode方法的返回值类型
      * @throws Exception
      */
     public static function onMessage(string $client_id, $message): void
@@ -172,11 +192,11 @@ class Events
 
     /**
      * @param string $client_id
-     * @param mixed $data
-     * @param mixed $original_message 完整的客户端请求数据，数据类型取决于Gateway所使用协议的decode方法返的回值类型
+     * @param array $data
+     * @param mixed $original_message 完整的客户端请求数据，数据类型取决于Gateway所使用协议的decode方法的返回值类型
      * @return void
      */
-    protected static function onMessageHandler(string $client_id, $data, $original_message): void
+    protected static function onMessageHandler(string $client_id, array $data, $original_message): void
     {
         //todo...
     }
