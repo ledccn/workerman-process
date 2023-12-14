@@ -16,7 +16,7 @@
     ],
     "require": {
         "php": "^7.4|^8.0|^8.1|^8.2",
-        "workerman/workerman": "^4.0",
+        "workerman/workerman": "^4.0.4 || ^5.0.0",
         "workerman/gateway-worker": "^3.1",
         "ext-json": "*"
     }
