@@ -245,12 +245,12 @@ class Events
         }
 
         $session = Gateway::getSession($client_id);
-        $_auth = $session['auth'] ?? $session['uniqid'] ?? '';
-        if (empty($_auth)) {
+        $known_string = $session['auth'] ?? $session['uniqid'] ?? '';
+        if (empty($known_string)) {
             throw new Exception('session验证参数为空');
         }
 
-        if (hash_equals($auth, $_auth)) {
+        if (hash_equals($known_string, $auth)) {
             Gateway::bindUid($client_id, $uid);
             return true;
         }
