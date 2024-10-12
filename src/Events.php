@@ -165,6 +165,7 @@ class Events
         //简易ping、pong
         if ('ping' === $message) {
             Gateway::sendToCurrentClient('pong');
+            static::dispatchByPingSuccess($client_id, $_SESSION);
             return;
         }
 
@@ -176,6 +177,7 @@ class Events
         switch ($data['event'] ?? '') {
             case 'ping':
                 Gateway::sendToCurrentClient('{"event":"pong"}');
+                static::dispatchByPingSuccess($client_id, $_SESSION);
                 break;
             case 'keepalive':
                 if (!empty($_SESSION[self::AUTH_TIMER_ID])) {
@@ -188,17 +190,6 @@ class Events
                 static::onMessageHandler($client_id, $data, $message);
                 break;
         }
-    }
-
-    /**
-     * @param string $client_id
-     * @param array $data
-     * @param mixed $original_message 完整的客户端请求数据，数据类型取决于Gateway所使用协议的decode方法的返回值类型
-     * @return void
-     */
-    protected static function onMessageHandler(string $client_id, array $data, $original_message): void
-    {
-        //todo...
     }
 
     /**
@@ -252,6 +243,7 @@ class Events
 
         if (hash_equals($known_string, $auth)) {
             Gateway::bindUid($client_id, $uid);
+            static::dispatchByBindUidSuccess($client_id, $uid, $auth);
             return true;
         }
 
@@ -273,5 +265,52 @@ class Events
         foreach ($groups as $group) {
             Gateway::joinGroup($client_id, $group);
         }
+        static::dispatchByJoinGroupSuccess($client_id, $group);
+    }
+
+    /**
+     * 【调度事件】收到ping心跳包
+     * @param string $client_id
+     * @param array|null $session
+     * @return void
+     */
+    protected static function dispatchByPingSuccess(string $client_id, ?array $session): void
+    {
+        //todo...
+    }
+
+    /**
+     * 【调度事件】收到其他类型的消息
+     * @param string $client_id
+     * @param array $data
+     * @param mixed $original_message 完整的客户端请求数据，数据类型取决于Gateway所使用协议的decode方法的返回值类型
+     * @return void
+     */
+    protected static function onMessageHandler(string $client_id, array $data, $original_message): void
+    {
+        //todo...
+    }
+
+    /**
+     * 【调度事件】将client_id与uid绑定成功之后
+     * @param string $client_id
+     * @param string $uid
+     * @param string $auth
+     * @return void
+     */
+    protected static function dispatchByBindUidSuccess(string $client_id, string $uid, string $auth): void
+    {
+        //todo...
+    }
+
+    /**
+     * 【调度事件】将client_id加入组成功之后
+     * @param string $client_id
+     * @param array $groups
+     * @return void
+     */
+    protected static function dispatchByJoinGroupSuccess(string $client_id, array $groups): void
+    {
+        //todo...
     }
 }
