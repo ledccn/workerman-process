@@ -243,7 +243,6 @@ class Events
 
         if (hash_equals($known_string, $auth)) {
             Gateway::bindUid($client_id, $uid);
-            static::dispatchByBindUidSuccess($client_id, $uid, $auth, $session);
             return true;
         }
 
@@ -265,7 +264,6 @@ class Events
         foreach ($groups as $group) {
             Gateway::joinGroup($client_id, $group);
         }
-        static::dispatchByJoinGroupSuccess($client_id, $group);
     }
 
     /**
@@ -287,30 +285,6 @@ class Events
      * @return void
      */
     protected static function onMessageHandler(string $client_id, array $data, $original_message): void
-    {
-        //todo...
-    }
-
-    /**
-     * 【调度事件】将client_id与uid绑定成功之后
-     * @param string $client_id
-     * @param string $uid
-     * @param string $auth
-     * @param array $session
-     * @return void
-     */
-    protected static function dispatchByBindUidSuccess(string $client_id, string $uid, string $auth, array $session): void
-    {
-        //todo...
-    }
-
-    /**
-     * 【调度事件】将client_id加入组成功之后
-     * @param string $client_id
-     * @param array $groups
-     * @return void
-     */
-    protected static function dispatchByJoinGroupSuccess(string $client_id, array $groups): void
     {
         //todo...
     }
