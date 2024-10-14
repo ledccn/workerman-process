@@ -16,8 +16,8 @@
     ],
     "require": {
         "php": ">=7.4",
-        "workerman/workerman": ">=4.0.4",
-        "workerman/gateway-worker": "^3.1",
+        "workerman/workerman": ">=4.1",
+        "workerman/gateway-worker": ">=3.1",
         "ext-json": "*"
     }
 }
